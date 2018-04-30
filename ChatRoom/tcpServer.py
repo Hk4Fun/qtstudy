@@ -3,9 +3,17 @@ __date__ = '2018/4/30 15:22'
 
 import sys
 
-from PyQt5.QtWidgets import (QWidget, QListWidget, QLineEdit, QPushButton, QLabel,
-                             QGridLayout, QApplication, QMessageBox)
+from PyQt5.QtWidgets import (QApplication, QMessageBox, QWidget)
 from PyQt5.QtNetwork import (QHostAddress, QTcpServer)
+
+sys.path.append('..')
+from ChatRoom.ui import ui_tcpServer
+
+
+class ConnectClient():
+    def __init__(self, socket, name='None'):
+        self.socket = socket
+        self.name = name
 
 
 class TcpServer(QWidget):
@@ -14,45 +22,26 @@ class TcpServer(QWidget):
         self.isUp = False
         self.port = 8888
         self.serverIP = QHostAddress('127.0.0.1')
-        self.tcpClientSocketList = []
-        self.initUI()
+        self.tcpClientList = []
+        self.initUi()
 
-    def initUI(self):
-        # 设置窗体的标题
-        self.setWindowTitle('TCP Server')
-        self.resize(400, 500)
-
-        self.contentListWidget = QListWidget()
-        self.serverIPLabel = QLabel('Server IP：')
-        self.serverIPLineEdit = QLineEdit()
-        self.portLabel = QLabel('Port：')
-        self.portLineEdit = QLineEdit()
-        self.openBtn = QPushButton('Open Chat Room')
-
-        self.mainLayout = QGridLayout(self)
-        self.mainLayout.addWidget(self.contentListWidget, 0, 0, 1, 2)
-        self.mainLayout.addWidget(self.portLabel, 1, 0)
-        self.mainLayout.addWidget(self.portLineEdit, 1, 1)
-        self.mainLayout.addWidget(self.serverIPLabel, 2, 0)
-        self.mainLayout.addWidget(self.serverIPLineEdit, 2, 1)
-        self.mainLayout.addWidget(self.openBtn, 3, 0, 1, 2)
-
-        self.portLineEdit.setText(str(self.port))
-        self.serverIPLineEdit.setText(self.serverIP.toString())
-
-        self.openBtn.clicked.connect(self.slotOpenOrClose)
-
+    def initUi(self):
+        self.ui = ui_tcpServer.Ui_Form()
+        self.ui.setupUi(self)
+        self.ui.portLineEdit.setText(str(self.port))
+        self.ui.serverIPLineEdit.setText(self.serverIP.toString())
+        self.ui.openBtn.clicked.connect(self.slotOpenOrClose)
         self.show()
 
     def validate(self):
-        if not self.serverIP.setAddress(self.serverIPLineEdit.text()):  # 判断给定的IP是否能够被正确解析
+        if not self.serverIP.setAddress(self.ui.serverIPLineEdit.text()):  # 判断给定的IP是否能够被正确解析
             QMessageBox().information(self, 'ERROR', 'Server IP Error!')
             return False
 
-        if not (0 <= int(self.portLineEdit.text()) <= 65535):
+        if not (0 <= int(self.ui.portLineEdit.text()) <= 65535):
             QMessageBox().information(self, 'ERROR', 'Server Port Error!')
             return False
-        self.port = int(self.portLineEdit.text())
+        self.port = int(self.ui.portLineEdit.text())
         return True
 
     def slotOpenOrClose(self):
@@ -63,49 +52,85 @@ class TcpServer(QWidget):
             self.closeRoom()
 
     def openRoom(self):
-        self.openBtn.setText('Close Chat Room')
+        self.ui.openBtn.setText('Close Chat Room')
         self.isUp = True
-        self.serverIPLineEdit.setEnabled(False)
-        self.portLineEdit.setEnabled(False)
+        self.ui.serverIPLineEdit.setEnabled(False)
+        self.ui.portLineEdit.setEnabled(False)
 
         self.tcpServer = QTcpServer()
         self.tcpServer.listen(self.serverIP, self.port)
         msg = '[*] Server is listening on {}:{} ........'.format(self.serverIP.toString(), self.port)
-        self.contentListWidget.addItem(msg)
+        self.ui.contentListWidget.addItem(msg)
         self.tcpServer.newConnection.connect(self.addClient2List)
 
     def closeRoom(self):
         del (self.tcpServer)
-        self.tcpClientSocketList = []
+        self.tcpClientList = []
+        self.ui.userListWidget.clear()
         self.isUp = False
-        self.serverIPLineEdit.setEnabled(True)
-        self.portLineEdit.setEnabled(True)
-        self.openBtn.setText('Open Chat Room')
+        self.ui.serverIPLineEdit.setEnabled(True)
+        self.ui.portLineEdit.setEnabled(True)
+        self.ui.openBtn.setText('Open Chat Room')
         msg = '[*] Chat Room is closed........'
-        self.contentListWidget.addItem(msg)
+        self.ui.contentListWidget.addItem(msg)
 
     def addClient2List(self):
         tcpClientSocket = self.tcpServer.nextPendingConnection()
-        self.tcpClientSocketList.append(tcpClientSocket)
+        client = ConnectClient(tcpClientSocket)
+        self.tcpClientList.append(client)
         tcpClientSocket.readyRead.connect(self.slotDataReceived)
         tcpClientSocket.disconnected.connect(self.slotDisconnected)
+        self.ui.onlineNumLabel.setText(str(len(self.tcpClientList)))
 
     def slotDataReceived(self):
         tcpClientSocket = self.sender()
         recvData = ''
         while tcpClientSocket.bytesAvailable() > 0:
             recvData += str(tcpClientSocket.read(tcpClientSocket.bytesAvailable()), encoding='utf-8')
-        self.contentListWidget.addItem(recvData)
-        self.contentListWidget.scrollToBottom()
-        # 实现信息的广播, tcpClientSocketList中保存了所有与服务器相连的TcpClientSocket对象
-        for client in self.tcpClientSocketList:
-            client.write(bytes(recvData, encoding='utf-8'))
+        self.ui.contentListWidget.addItem(recvData)
+        self.ui.contentListWidget.scrollToBottom()
+        self._parseData(recvData, tcpClientSocket)
+        # 实现信息的广播, tcpClientList中保存了所有与服务器相连的TcpClientSocket对象
+        for client in self.tcpClientList:
+            client.socket.write(bytes(recvData, encoding='utf-8'))
 
     def slotDisconnected(self):
-        # 从tcpClientSocketList列表中将断开连接的TcpClientSocket对象删除
+        # 从tcpClientList列表中将断开连接的TcpClientSocket对象删除
         tcpClientSocket = self.sender()
-        idx = self.tcpClientSocketList.index(tcpClientSocket)
-        del (self.tcpClientSocketList[idx])
+        idx = self._findClient(tcpClientSocket)
+        if idx >= 0:
+            del (self.tcpClientList[idx])
+        self.ui.onlineNumLabel.setText(str(len(self.tcpClientList)))
+
+    def _findClient(self, socket):
+        for idx, client in enumerate(self.tcpClientList):
+            if client.socket is socket:
+                return idx
+        return -1
+
+    def _parseData(self, data, socket):
+        if data.startswith('[+]'):
+            name = data.split(':')[0][4:]
+            idx = self._findClient(socket)
+            if idx >= 0:
+                self.tcpClientList[idx].name = name
+                self.ui.userListWidget.addItem(name)
+        elif data.startswith('[-]'):
+            idx = self._findClient(socket)
+            if idx >= 0:
+                self.ui.userListWidget.takeItem(idx)
+
+    def closeEvent(self, event):
+        if self.isUp:
+            msg = 'Are you sure to close the chat room ?'
+            reply = QMessageBox().warning(self, 'Quit', msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                self.closeRoom()
+                event.accept()
+            else:
+                event.ignore()
+        else:
+            event.accept()
 
 
 if __name__ == '__main__':

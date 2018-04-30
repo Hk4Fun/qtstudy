@@ -3,9 +3,11 @@ __date__ = '2018/4/30 13:02'
 
 import sys
 
-from PyQt5.QtWidgets import (QWidget, QListWidget, QLineEdit, QPushButton, QLabel,
-                             QGridLayout, QApplication, QMessageBox)
+from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox)
 from PyQt5.QtNetwork import (QHostAddress, QTcpSocket)
+
+sys.path.append('..')
+from ChatRoom.ui import ui_tcpClient
 
 
 class TcpClient(QWidget):
@@ -18,42 +20,15 @@ class TcpClient(QWidget):
         self.initUI()
 
     def initUI(self):
-        # 设置窗体的标题
-        self.setWindowTitle('TCP Client')
-        self.resize(400, 500)
+        self.ui = ui_tcpClient.Ui_Form()
+        self.ui.setupUi(self)
+        self.ui.sendBtn.setEnabled(False)
+        self.ui.portLineEdit.setText(str(self.port))
+        self.ui.serverIPLineEdit.setText(self.serverIP.toString())
 
-        # 初始化各个控件
-        self.contentListWidget = QListWidget()
-        self.sendLineEdit = QLineEdit()
-        self.sendBtn = QPushButton('Send')
-        self.userNameLabel = QLabel('User Name：')
-        self.userNameLineEdit = QLineEdit()
-        self.serverIPLabel = QLabel('Server IP：')
-        self.serverIPLineEdit = QLineEdit()
-        self.portLabel = QLabel('Server Port：')
-        self.portLineEdit = QLineEdit()
-        self.enterBtn = QPushButton('Enter Chat Room')
-
-        # 设置布局
-        mainLayout = QGridLayout(self)
-        mainLayout.addWidget(self.contentListWidget, 0, 0, 1, 2)
-        mainLayout.addWidget(self.sendLineEdit, 1, 0)
-        mainLayout.addWidget(self.sendBtn, 1, 1)
-        mainLayout.addWidget(self.userNameLabel, 2, 0)
-        mainLayout.addWidget(self.userNameLineEdit, 2, 1)
-        mainLayout.addWidget(self.serverIPLabel, 3, 0)
-        mainLayout.addWidget(self.serverIPLineEdit, 3, 1)
-        mainLayout.addWidget(self.portLabel, 4, 0)
-        mainLayout.addWidget(self.portLineEdit, 4, 1)
-        mainLayout.addWidget(self.enterBtn, 5, 0, 1, 2)
-
-        self.sendBtn.setEnabled(False)
-        self.portLineEdit.setText(str(self.port))
-        self.serverIPLineEdit.setText(self.serverIP.toString())
-
-        self.enterBtn.clicked.connect(self.slotEnterOrLeave)
-        self.sendBtn.clicked.connect(self.slotSend)
-        self.sendLineEdit.returnPressed.connect(self.slotSend)
+        self.ui.enterBtn.clicked.connect(self.slotEnterOrLeave)
+        self.ui.sendBtn.clicked.connect(self.slotSend)
+        self.ui.sendLineEdit.returnPressed.connect(self.slotSend)
 
         self.show()
 
@@ -65,19 +40,19 @@ class TcpClient(QWidget):
             self.leaveRoom()
 
     def validate(self):
-        if self.userNameLineEdit.text() == '':
+        if self.ui.userNameLineEdit.text() == '':
             QMessageBox().information(self, 'ERROR', 'User Name Error!')
             return False
-        self.userName = self.userNameLineEdit.text()
+        self.userName = self.ui.userNameLineEdit.text()
 
-        if not self.serverIP.setAddress(self.serverIPLineEdit.text()):  # 判断给定的IP是否能够被正确解析
+        if not self.serverIP.setAddress(self.ui.serverIPLineEdit.text()):  # 判断给定的IP是否能够被正确解析
             QMessageBox().information(self, 'ERROR', 'Server IP Error!')
             return False
 
-        if not (0 <= int(self.portLineEdit.text()) <= 65535):
+        if not (0 <= int(self.ui.portLineEdit.text()) <= 65535):
             QMessageBox().information(self, 'ERROR', 'Server Port Error!')
             return False
-        self.port = int(self.portLineEdit.text())
+        self.port = int(self.ui.portLineEdit.text())
         return True
 
     def enterRoom(self):
@@ -95,18 +70,18 @@ class TcpClient(QWidget):
         self.tcpSocket.disconnectFromHost()
 
     def slotSend(self):
-        if self.sendLineEdit.text() == '':
+        if self.ui.sendLineEdit.text() == '':
             return
-        sendData = self.userName + ': ' + self.sendLineEdit.text()
+        sendData = self.userName + ': ' + self.ui.sendLineEdit.text()
         self.tcpSocket.write(bytes(sendData, encoding='utf-8'))
-        self.sendLineEdit.clear()
+        self.ui.sendLineEdit.clear()
 
     def slotConnected(self):
-        self.sendBtn.setEnabled(True)
-        self.userNameLineEdit.setEnabled(False)
-        self.serverIPLineEdit.setEnabled(False)
-        self.portLineEdit.setEnabled(False)
-        self.enterBtn.setText('Leave Chat Room')
+        self.ui.sendBtn.setEnabled(True)
+        self.ui.userNameLineEdit.setEnabled(False)
+        self.ui.serverIPLineEdit.setEnabled(False)
+        self.ui.portLineEdit.setEnabled(False)
+        self.ui.enterBtn.setText('Leave Chat Room')
         self.isOnline = True
 
         sendData = '[+] ' + self.userName + ': Enter Chat Room'
@@ -116,16 +91,15 @@ class TcpClient(QWidget):
         recvData = ''
         while self.tcpSocket.bytesAvailable() > 0:
             recvData = self.tcpSocket.read(self.tcpSocket.bytesAvailable())
-        self.contentListWidget.addItem(str(recvData, encoding='utf-8'))
-        self.contentListWidget.scrollToBottom()  # 滚动到最后一行
+        self.ui.contentListWidget.addItem(str(recvData, encoding='utf-8'))
+        self.ui.contentListWidget.scrollToBottom()  # 滚动到最后一行
 
     def slotDisconnected(self):
-        self.sendBtn.setEnabled(False)
-        self.userNameLineEdit.setEnabled(True)
-        self.serverIPLineEdit.setEnabled(True)
-        self.portLineEdit.setEnabled(True)
-
-        self.enterBtn.setText('Enter Chat Room')
+        self.ui.sendBtn.setEnabled(False)
+        self.ui.userNameLineEdit.setEnabled(True)
+        self.ui.serverIPLineEdit.setEnabled(True)
+        self.ui.portLineEdit.setEnabled(True)
+        self.ui.enterBtn.setText('Enter Chat Room')
         self.isOnline = False
 
     def closeEvent(self, event):
@@ -143,10 +117,11 @@ class TcpClient(QWidget):
     def slotErrorOccured(self, socketError):
         if socketError == 0:
             msg = '[*] ConnectionRefusedError: The connection was refused by the peer (or timed out).'
-            self.contentListWidget.addItem(msg)
+            self.ui.contentListWidget.addItem(msg)
         elif socketError == 1:
             msg = '[*] RemoteHostClosedError: The remote host closed the connection.'
-            self.contentListWidget.addItem(msg)
+            self.ui.contentListWidget.addItem(msg)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
