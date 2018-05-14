@@ -28,6 +28,7 @@ class TcpServer(QWidget):
     def initUi(self):
         self.ui = ui_tcpServer.Ui_Form()
         self.ui.setupUi(self)
+        self.ui.splitter.setStretchFactor(1,1)
         self.ui.portLineEdit.setText(str(self.port))
         self.ui.serverIPLineEdit.setText(self.serverIP.toString())
         self.ui.openBtn.clicked.connect(self.slotOpenOrClose)
