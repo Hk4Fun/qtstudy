@@ -9,21 +9,8 @@ from PyQt5.QtNetwork import (QHostAddress, QTcpServer)
 from PyQt5.QtCore import (QTimer, QJsonDocument)
 
 sys.path.append('..')
+from utils import *
 from AirConditioning.ui import ui_Controller
-
-COLD_MODE = 0
-WARM_MODE = 1
-LOW_WIND = 1
-MID_WIND = 2
-HIGH_WIND = 3
-
-DEFAULT_TIMEOUT = 5000  # 默认每5秒钟更新一次从控机列表
-DEFAULT_PORT = 8888
-DEFAULT_ADDR = '127.0.0.1'
-
-# 协议类型
-TYPE_REQUEST_STATUS = 0
-TYPE_RESPONSE_STATUS = 1
 
 
 class ConnectClient():
@@ -45,6 +32,7 @@ class Controller(QWidget):
         self.port = DEFAULT_PORT
         self.serverIP = QHostAddress(DEFAULT_ADDR)
         self.client_list = []
+        self.req_sta_inter = REQUEST_STATUS_TIMER
         self.timer = QTimer(self)
         self.initUi()
 
@@ -62,7 +50,8 @@ class Controller(QWidget):
         self.show()
 
     def slotSetRef(self, interval):
-        self.timer.setInterval(int(interval * 1000))
+        self.req_sta_inter = int(interval * 1000)
+        self.timer.setInterval(self.req_sta_inter)
 
     def slotRequestStatus(self):
         sendData = QJsonDocument({'type': TYPE_REQUEST_STATUS}).toJson()
@@ -78,7 +67,7 @@ class Controller(QWidget):
     def openController(self):
         self.isUp = True
         self.ui.btClose.setText('关机')
-        self.timer.start(DEFAULT_TIMEOUT)
+        self.timer.start(self.req_sta_inter)
 
         self.server = QTcpServer()
         self.server.listen(self.serverIP, self.port)
@@ -125,22 +114,16 @@ class Controller(QWidget):
                 return row
         return -1
 
-    def mapWindSpeed(self, wind_speed):
-        return {LOW_WIND: '低风', MID_WIND: '中风', HIGH_WIND: '高风'}[wind_speed]
-
-    def mapMode(self, mode):
-        return {COLD_MODE: '制冷', WARM_MODE: '制热'}[mode]
-
     def addClientStatus2table(self, client):
         row = self.findRow(client.roomId)
         if row == -1:  # 未找到，新建一行
             row = self.ui.tableSubMachine.rowCount()
             self.ui.tableSubMachine.setRowCount(row + 1)
         self.ui.tableSubMachine.setItem(row, 0, QTableWidgetItem(client.roomId))
-        self.ui.tableSubMachine.setItem(row, 1, QTableWidgetItem(self.mapMode(client.mode)))
+        self.ui.tableSubMachine.setItem(row, 1, QTableWidgetItem(mapMode(client.mode)))
         self.ui.tableSubMachine.setItem(row, 2, QTableWidgetItem(str(client.roomTemp)))
         self.ui.tableSubMachine.setItem(row, 3, QTableWidgetItem(str(client.setTemp)))
-        self.ui.tableSubMachine.setItem(row, 4, QTableWidgetItem(self.mapWindSpeed(client.windSpeed)))
+        self.ui.tableSubMachine.setItem(row, 4, QTableWidgetItem(mapWindSpeed(client.windSpeed)))
         self.ui.tableSubMachine.setItem(row, 5, QTableWidgetItem(str(round(client.energy, 2))))
         self.ui.tableSubMachine.setItem(row, 6, QTableWidgetItem(str(round(client.money, 2))))
 
@@ -154,7 +137,6 @@ class Controller(QWidget):
         self.parseData(client, recvData)
 
     def slotDisconnected(self):
-        # 从tcpClientList列表中将断开连接的TcpClientSocket对象删除
         client_sock = self.sender()
         idx = self.findClient(client_sock)
         if idx >= 0:

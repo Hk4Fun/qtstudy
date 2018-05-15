@@ -2,36 +2,15 @@ __author__ = 'Hk4Fun'
 __date__ = '2018/5/14 17:22'
 
 import sys
+import random
 
 from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox)
 from PyQt5.QtNetwork import (QHostAddress, QTcpSocket)
 from PyQt5.QtCore import (QTimer, QJsonDocument)
 
 sys.path.append('..')
+from utils import *
 from AirConditioning.ui import ui_SubMachine
-
-COLD_MODE = 0
-WARM_MODE = 1
-LOW_WIND = 1
-MID_WIND = 2
-HIGH_WIND = 3
-DEFAULT_MODE = COLD_MODE
-DEFAULT_SET_TEMP = 25
-DEFAULT_ROOM_TEMP = 30
-DEFAULT_WIND_SPEED = MID_WIND
-DEFAULT_PORT = 8888
-DEFAULT_ADDR = '127.0.0.1'
-MAX_TEMP = 30
-MIN_TEMP = 17
-ROOM_TEMP_TIMER = 2000
-ROOM_TEMP_INC = 1
-ENERGY_TIMER = 1000  # 耗能更新的同时计费一起更新
-ENERGY_INC = 0.1
-MONEY_INC = 0.1
-
-# 协议类型
-TYPE_REQUEST_STATUS = 0
-TYPE_RESPONSE_STATUS = 1
 
 
 class SubMachine(QWidget):
@@ -70,7 +49,12 @@ class SubMachine(QWidget):
                 self.roomTemp += ROOM_TEMP_INC
             elif self.roomTemp > self.setTemp:
                 self.roomTemp -= ROOM_TEMP_INC
-            self.ui.label_roomTemp.setText(str(self.roomTemp))
+        else:  # 根据设定温度和模式上下浮动
+            if self.mode == COLD_MODE:  # 室外温度高
+                self.roomTemp += random.choice([0, 1, 2])
+            elif self.mode == WARM_MODE:  # 室外温度低
+                self.roomTemp -= random.choice([0, 1, 2])
+        self.ui.label_roomTemp.setText(str(self.roomTemp))
 
     def slotUpdateEnergyMoney(self):
         self.energy += ENERGY_INC * self.windSpeed
@@ -86,19 +70,16 @@ class SubMachine(QWidget):
         self.mode = WARM_MODE
         # send something
 
-    def mapWindSpeed(self, wind_speed):
-        return {LOW_WIND: '低风', MID_WIND: '中风', HIGH_WIND: '高风'}[wind_speed]
-
     def slotWindSpeedUp(self):
         if self.windSpeed != HIGH_WIND:
             self.windSpeed += 1
-            self.ui.label_windSpeed.setText(self.mapWindSpeed(self.windSpeed))
+            self.ui.label_windSpeed.setText(mapWindSpeed(self.windSpeed))
             # send something
 
     def slotWindSpeedDown(self):
         if self.windSpeed != LOW_WIND:
             self.windSpeed -= 1
-            self.ui.label_windSpeed.setText(self.mapWindSpeed(self.windSpeed))
+            self.ui.label_windSpeed.setText(mapWindSpeed(self.windSpeed))
             # send something
 
     def slotSetTempUp(self):
