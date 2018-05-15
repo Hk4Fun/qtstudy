@@ -87,6 +87,11 @@ class TcpClient(QWidget):
         sendData = '[+] ' + self.userName + ': Enter Chat Room'
         self.tcpSocket.write(bytes(sendData, encoding='utf-8'))
 
+    def mapWindSpeed(self, wind_speed):
+        return {LOW_WIND: '低风', MID_WIND: '中风', HIGH_WIND: '高风'}[wind_speed]
+
+
+
     def slotDataReceived(self):
         recvData = ''
         while self.tcpSocket.bytesAvailable() > 0:
