@@ -9,7 +9,7 @@ from PyQt5.QtNetwork import (QHostAddress, QTcpSocket)
 from PyQt5.QtCore import (QTimer, QJsonDocument)
 
 sys.path.append('..')
-from utils import *
+from AirConditioning.utils import *
 from AirConditioning.ui import ui_SubMachine
 
 

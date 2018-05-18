@@ -1,7 +1,7 @@
 __author__ = 'Hk4Fun'
 __date__ = '2018/5/15 17:24'
 
-from settings import *
+from AirConditioning.settings import *
 
 
 def mapWindSpeed(wind_speed):
