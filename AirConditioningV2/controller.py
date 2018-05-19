@@ -209,9 +209,13 @@ class Controller(QWidget):
         self.refTableTimer.start(self.refInterval)
 
     def closeMachine(self):
+        for client in self.serveQueue + self.waitQueue + self.tempQueue:
+            client.room_temp_timer.stop()
+            client.energy_timer.stop()
+            client.sock.abort()
+        self.serveQueue, self.waitQueue, self.tempQueue = [], [], []
         del self.server
         self.isUp = False
-        self.serveQueue, self.waitQueue, self.tempQueue = [], [], []
         self.ui.btClose.setText('开机')
         self.ui.btCold.setEnabled(False)
         self.ui.btWarm.setEnabled(False)
@@ -236,6 +240,8 @@ class Controller(QWidget):
         client_sock = self.sender()
         idx, queue = self.findClient(client_sock)
         if idx >= 0:
+            queue[idx].room_temp_timer.stop()
+            queue[idx].energy_timer.stop()
             del (queue[idx])
 
     def findClient(self, sock):
