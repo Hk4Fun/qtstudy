@@ -44,7 +44,10 @@ class Protocol:
 
     def sendTemp(self, value):
         # TEMP_CODE|Room_id|userLevel|Temp_value
-        self.sendPacket([SPEED_CODE, self.ac.roomId, self.ac.userLevel, value])
+        self.sendPacket([TEMP_CODE, self.ac.roomId, self.ac.userLevel, value])
+
+    def sendTempBack(self):
+        self.sendPacket([TEMP_BACK_CODE, self.ac.roomTemp])
 
     def protocolError(self):
         msg = '协议发生严重性错误！'

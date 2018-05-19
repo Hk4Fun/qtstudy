@@ -39,7 +39,6 @@ class Controller(QWidget):
     def initUi(self):
         self.ui = ui_Controller.Ui_Form()
         self.ui.setupUi(self)
-        self.ui.tableSubMachine.setItem(0, 1, QTableWidgetItem(1))
         # 使行列头自适应宽度，所有列平均分来填充空白部分
         self.ui.tableSubMachine.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 

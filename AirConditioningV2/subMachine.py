@@ -23,6 +23,7 @@ class SubMachine(QWidget):
         self.roomTemp = DEFAULT_ROOM_TEMP
         self.setTemp = DEFAULT_SET_TEMP
         self.windSpeed = DEFAULT_WIND_SPEED
+        self.mode = DEFAULT_MODE
         self.tempBackTimer = QTimer()
         self.countDown = TEMP_BACK_RANGE
         self.initUi()
@@ -30,7 +31,7 @@ class SubMachine(QWidget):
     def initUi(self):
         self.ui = ui_SubMachine.Ui_Form()
         self.ui.setupUi(self)
-        self.tempBackTimer.timeout.connect(self.tempBack())
+        self.tempBackTimer.timeout.connect(self.tempBack)
         self.ui.cb_userLevel.currentIndexChanged.connect(self.slotSelectUserLevel)
         self.ui.btClose.clicked.connect(self.slotOpenOrClose)
         self.ui.btWindSpeedUp.clicked.connect(self.slotWindSpeedUp)
@@ -146,6 +147,7 @@ class SubMachine(QWidget):
         else:
             # 设定温度、风速由recvSpeedACK和recvTempACK更新，不必重复更新
             self.roomTemp = state['roomTemp']  # 房间温度由主控通知
+            self.mode = state['mode']
             self.ui.label_roomTemp.setText(str(state['roomTemp']))
             self.ui.label_mode.setText(mapMode_c2w(state['mode']))  # 模式由主控决定
             self.ui.label_energy.setText(str(state['energy']))  # 耗能由主控统计
@@ -163,7 +165,6 @@ class SubMachine(QWidget):
             self.tempBackTimer.start(TEMP_BACK_TIMER)
 
     def tempBack(self):
-
         if self.countDown:
             self.countDown -= 1  # 回温次数-1
             if self.mode == COLD_MODE:  # 室外温度高
@@ -180,7 +181,7 @@ class SubMachine(QWidget):
 
             self.tempBackTimer.stop()
             self.countDown = TEMP_BACK_RANGE
-            self.protocol.sendOpen()
+            self.protocol.sendTempBack()
 
     def slotDisconnected(self):
         self.isUp = False
