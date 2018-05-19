@@ -3,7 +3,7 @@ __date__ = '2018/5/14 17:22'
 
 import sys
 
-from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox)
+from PyQt5.QtWidgets import (QWidget, QApplication)
 from PyQt5.QtNetwork import (QHostAddress, QTcpSocket)
 from PyQt5.QtCore import QTimer
 
@@ -61,14 +61,14 @@ class SubMachine(QWidget):
             msg = '请先填写房间号！'
             QMessageBox().warning(self, '房间号为空', msg, QMessageBox.Yes, QMessageBox.Yes)
             return
-        sock = QTcpSocket(self)
-        self.protocol = Protocol(sock, self)
-        sock.connectToHost(self.serverIP, self.port)
+        self.sock = QTcpSocket(self)
+        self.protocol = Protocol(self.sock, self)
+        self.sock.connectToHost(self.serverIP, self.port)
 
-        sock.connected.connect(self.protocol.sendOpen)
-        sock.readyRead.connect(self.protocol.recvPacket)
-        sock.disconnected.connect(self.slotDisconnected)
-        sock.error.connect(self.slotErrorOccured)
+        self.sock.connected.connect(self.protocol.sendOpen)
+        self.sock.readyRead.connect(self.protocol.recvPacket)
+        self.sock.disconnected.connect(self.slotDisconnected)
+        self.sock.error.connect(self.slotErrorOccured)
 
     def slotWindSpeedUp(self):
         if self.windSpeed != HIGH_WIND:
@@ -117,8 +117,7 @@ class SubMachine(QWidget):
             self.ui.label_windSpeed.setText(mapWindSpeed_c2w(self.windSpeed))
         else:
             self.windSpeed = mapWindSpeed_w2c(self.ui.label_windSpeed.text())
-            msg = '服务队列已满，请耐心等候......'
-            QMessageBox().warning(self, '服务队列已满', msg, QMessageBox.Yes, QMessageBox.Yes)
+            self.protocol.serveQueueFull()
         self.ui.btWindSpeedDown.setEnabled(True)
         self.ui.btWindSpeedUp.setEnabled(True)
 
@@ -127,27 +126,20 @@ class SubMachine(QWidget):
             self.ui.lcd_setTemp.display(self.setTemp)
         else:
             self.setTemp = self.ui.lcd_setTemp.intValue()
-            msg = '服务队列已满，请耐心等候......'
-            QMessageBox().warning(self, '服务队列已满', msg, QMessageBox.Yes, QMessageBox.Yes)
+            self.protocol.serveQueueFull()
         self.ui.btSetTempDown.setEnabled(True)
         self.ui.btSetTempUp.setEnabled(True)
 
     def recvState(self, state):
-        state = {
-            'roomId': state[1],
-            'mode': int(state[2]),
-            'roomTemp': int(state[3]),
-            'setTemp': int(state[4]),
-            'windSpeed': int(state[5]),
-            'energy': round(float(state[6]), 2),
-            'cost': round(float(state[7]), 2)
-        }
         if state['roomId'] != self.roomId:
             self.protocol.protocolError()
         else:
-            # 设定温度、风速由recvSpeedACK和recvTempACK更新，不必重复更新
             self.roomTemp = state['roomTemp']  # 房间温度由主控通知
             self.mode = state['mode']
+            self.setTemp = state['setTemp']
+            self.windSpeed = state['windSpeed']
+            self.ui.label_windSpeed.setText(mapWindSpeed_c2w(self.windSpeed))
+            self.ui.lcd_setTemp.display(self.setTemp)
             self.ui.label_roomTemp.setText(str(state['roomTemp']))
             self.ui.label_mode.setText(mapMode_c2w(state['mode']))  # 模式由主控决定
             self.ui.label_energy.setText(str(state['energy']))  # 耗能由主控统计
@@ -172,7 +164,7 @@ class SubMachine(QWidget):
             elif self.mode == WARM_MODE:  # 室外温度低
                 self.roomTemp -= 1
             self.ui.label_roomTemp.setText(str(self.roomTemp))
-        if self.countDown == 0:  # 回温结束，重新申请服务
+        else:  # 回温结束，重新申请服务
             # 开启按钮的响应
             self.ui.btWindSpeedDown.setEnabled(True)
             self.ui.btWindSpeedUp.setEnabled(True)

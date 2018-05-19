@@ -3,8 +3,7 @@ __date__ = '2018/5/15 0:13'
 
 import sys
 
-from PyQt5.QtWidgets import (QApplication, QMessageBox, QWidget, QHeaderView,
-                             QTableWidgetItem)
+from PyQt5.QtWidgets import (QApplication, QWidget, QHeaderView, QTableWidgetItem)
 from PyQt5.QtNetwork import (QHostAddress, QTcpServer)
 from PyQt5.QtCore import (QTimer, QJsonDocument)
 

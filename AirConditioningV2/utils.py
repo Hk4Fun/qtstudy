@@ -14,3 +14,7 @@ def mapWindSpeed_w2c(wind_speed):
 
 def mapMode_c2w(mode):
     return {COLD_MODE: '制冷', WARM_MODE: '制热'}[mode]
+
+
+def mapUserLevel_c2w(userLevel):
+    return {USER_NORMAL: '普通用户', USER_VIP: 'VIP'}[userLevel]
