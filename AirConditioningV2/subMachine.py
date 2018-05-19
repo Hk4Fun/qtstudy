@@ -116,7 +116,9 @@ class SubMachine(QWidget):
         if res:
             self.ui.label_windSpeed.setText(mapWindSpeed_c2w(self.windSpeed))
         else:
-            self.windSpeed = mapWindSpeed_w2c(self.ui.label_windSpeed.text())
+            windSpeed = self.ui.label_windSpeed.text()
+            if windSpeed != '--':
+                self.windSpeed = mapWindSpeed_w2c(windSpeed)
             self.protocol.serveQueueFull()
         self.ui.btWindSpeedDown.setEnabled(True)
         self.ui.btWindSpeedUp.setEnabled(True)
@@ -157,7 +159,7 @@ class SubMachine(QWidget):
             self.tempBackTimer.start(TEMP_BACK_TIMER)
 
     def tempBack(self):
-        if self.countDown:
+        if self.countDown and abs(self.roomTemp - self.setTemp) < TEMP_BACK_RANGE:  # 回温范围有限
             self.countDown -= 1  # 回温次数-1
             if self.mode == COLD_MODE:  # 室外温度高
                 self.roomTemp += 1

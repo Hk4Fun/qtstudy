@@ -40,6 +40,7 @@ class ConnectClient():
     def startServe(self, client):
         client.room_temp_timer.start(ROOM_TEMP_TIMER)
         client.energy_timer.start(ENERGY_TIMER)
+        client.mode = client.server.mode  # 进入服务队列的client要更新当前模式，与server一致
 
     def stopServe(self, client):
         client.room_temp_timer.stop()
@@ -101,9 +102,13 @@ class ConnectClient():
     def slotChangeRoomTemp(self):
         if self.roomTemp != self.setTemp:
             if self.roomTemp < self.setTemp:
-                self.roomTemp += 1
+                self.roomTemp += self.windSpeed  # 温度变化的快慢由风速决定
+                if self.roomTemp > self.setTemp:  # 防止房间温度超过设定温度
+                    self.roomTemp = self.setTemp
             elif self.roomTemp > self.setTemp:
-                self.roomTemp -= 1
+                self.roomTemp -= self.windSpeed
+                if self.roomTemp < self.setTemp:
+                    self.roomTemp = self.setTemp
         else:  # 服务结束放入回温队列
             self.stopServe(self)
             self.server.serveQueue.remove(self)
@@ -129,6 +134,7 @@ class Controller(QWidget):
         self.refTableTimer = QTimer()
         self.sendInterval = SEND_STATE_TIMER
         self.refInterval = TABLE_REF_TIMER
+        self.mode = DEFAULT_MODE  # 让回到服务队列的client及时更新mode
         self.initUi()
 
     def initUi(self):
@@ -150,10 +156,12 @@ class Controller(QWidget):
         self.show()
 
     def slotWarmMode(self):
+        self.mode = WARM_MODE
         for client in self.serveQueue:
             client.mode = WARM_MODE
 
     def slotColdMode(self):
+        self.mode = COLD_MODE
         for client in self.serveQueue:
             client.mode = COLD_MODE
 

@@ -2,7 +2,8 @@ __author__ = 'Hk4Fun'
 __date__ = '2018/5/18 15:57'
 
 from AirConditioningV2.settings import *
-from PyQt5.QtWidgets import QMessageBox
+from AirConditioningV2.ui import ui_QueueFull
+from PyQt5.QtWidgets import QMessageBox, QDialog
 
 
 class Protocol:
@@ -10,6 +11,7 @@ class Protocol:
         self.sock = sock
         self.ac = ac
         self.isClient = isClient
+        self.dialogFull = None
 
     def sendPacket(self, packet):
         sendData = '|'.join(map(str, packet))
@@ -111,5 +113,11 @@ class Protocol:
             self.ac.closeMachine()
 
     def serveQueueFull(self):
-        msg = '服务队列已满，请耐心等候......'
-        QMessageBox().warning(self.ac, '服务队列已满', msg, QMessageBox.Yes, QMessageBox.Yes)
+        # should be nonblock, don't use QMessageBox
+        if self.dialogFull:
+            self.dialogFull.close()
+        ui = ui_QueueFull.Ui_Dialog()
+        self.dialogFull = QDialog(self.ac)
+        ui.setupUi(self.dialogFull)
+        self.dialogFull.show()
+        ui.btYes.clicked.connect(lambda: self.dialogFull.close())
