@@ -3,7 +3,7 @@ __date__ = '2018/5/14 17:22'
 
 import sys
 
-from PyQt5.QtWidgets import (QWidget, QApplication)
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtNetwork import (QHostAddress, QTcpSocket)
 from PyQt5.QtCore import QTimer
 
@@ -55,6 +55,7 @@ class SubMachine(QWidget):
     def closeMachine(self):
         self.protocol.sendClose()
 
+    @connectHostLog
     def openMachine(self):
         self.roomId = self.ui.leRoomId.text()
         if self.roomId == '':
@@ -65,10 +66,25 @@ class SubMachine(QWidget):
         self.protocol = Protocol(self.sock, self)
         self.sock.connectToHost(self.serverIP, self.port)
 
-        self.sock.connected.connect(self.protocol.sendOpen)
+        self.sock.connected.connect(self.slotConnected)
         self.sock.readyRead.connect(self.protocol.recvPacket)
         self.sock.disconnected.connect(self.slotDisconnected)
         self.sock.error.connect(self.slotErrorOccured)
+
+    @disconFromServerLog
+    def slotDisconnected(self):
+        self.isUp = False
+        self.ui.btWindSpeedDown.setEnabled(False)
+        self.ui.btWindSpeedUp.setEnabled(False)
+        self.ui.btSetTempDown.setEnabled(False)
+        self.ui.btSetTempUp.setEnabled(False)
+        self.ui.leRoomId.setEnabled(True)
+        self.ui.cb_userLevel.setEnabled(True)
+        self.ui.btClose.setText('开机')
+
+    @connectedLog
+    def slotConnected(self):
+        self.protocol.sendOpen()
 
     def slotWindSpeedUp(self):
         if self.windSpeed != HIGH_WIND:
@@ -98,8 +114,8 @@ class SubMachine(QWidget):
             self.setTemp -= 1
             self.protocol.sendTemp(self.setTemp)
 
-    def recvOpenACK(self, res):
-        if res:
+    def recvOpenACK(self, data):
+        if data['res']:
             self.isUp = True
             self.ui.btWindSpeedDown.setEnabled(True)
             self.ui.btWindSpeedUp.setEnabled(True)
@@ -108,6 +124,13 @@ class SubMachine(QWidget):
             self.ui.leRoomId.setEnabled(False)
             self.ui.cb_userLevel.setEnabled(False)
             self.ui.btClose.setText('关机')
+            # 获取初始值：mode，roomTemp，windSpeed
+            self.mode = data['mode']
+            self.roomTemp = data['roomTemp']
+            self.windSpeed = data['windSpeed']
+            self.ui.label_mode.setText(mapMode_c2w(data['mode']))
+            self.ui.label_windSpeed.setText(mapWindSpeed_c2w(self.windSpeed))
+            self.ui.label_roomTemp.setText(str(data['roomTemp']))
         else:
             msg = '该房间已入住，请更换其他房间号！'
             QMessageBox().warning(self, '开机失败', msg, QMessageBox.Yes, QMessageBox.Yes)
@@ -115,7 +138,7 @@ class SubMachine(QWidget):
     def recvCloseACK(self, res):
         if res:
             self.sock.disconnectFromHost()
-        else: # maybe useless
+        else:  # maybe useless
             msg = '请求关机失败！'
             QMessageBox().warning(self, '关机失败', msg, QMessageBox.Yes, QMessageBox.Yes)
 
@@ -184,16 +207,7 @@ class SubMachine(QWidget):
             self.countDown = TEMP_BACK_RANGE
             self.protocol.sendTempBack()
 
-    def slotDisconnected(self):
-        self.isUp = False
-        self.ui.btWindSpeedDown.setEnabled(False)
-        self.ui.btWindSpeedUp.setEnabled(False)
-        self.ui.btSetTempDown.setEnabled(False)
-        self.ui.btSetTempUp.setEnabled(False)
-        self.ui.leRoomId.setEnabled(True)
-        self.ui.cb_userLevel.setEnabled(True)
-        self.ui.btClose.setText('开机')
-
+    @errorLog
     def slotErrorOccured(self, socketError):
         if socketError == 0:
             msg = '请确保中控机开启！'
@@ -201,9 +215,3 @@ class SubMachine(QWidget):
         elif socketError == 1:
             msg = '与中控机断开连接！'
             QMessageBox().critical(self, '连接异常', msg, QMessageBox.Yes, QMessageBox.Yes)
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    sub_machine = SubMachine()
-    app.exit(app.exec_())

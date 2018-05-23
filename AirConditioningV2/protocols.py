@@ -1,9 +1,13 @@
 __author__ = 'Hk4Fun'
 __date__ = '2018/5/18 15:57'
 
-from AirConditioningV2.settings import *
-from AirConditioningV2.ui import ui_QueueFull
+import sys
+
 from PyQt5.QtWidgets import QMessageBox, QDialog
+
+sys.path.append('..')
+from AirConditioningV2.ui import ui_QueueFull
+from AirConditioningV2.logger import *
 
 
 class Protocol:
@@ -13,6 +17,7 @@ class Protocol:
         self.isClient = isClient
         self.dialogFull = None
 
+    @sendLog
     def sendPacket(self, packet):
         sendData = '|'.join(map(str, packet))
         self.sock.write(sendData.encode())
@@ -21,13 +26,19 @@ class Protocol:
         recvData = ''
         while self.sock.bytesAvailable() > 0:
             recvData += self.sock.read(self.sock.bytesAvailable()).decode()
-        print(recvData)
         self.dataParse(recvData.split('|'))
 
+    @recvLog
     def dataParse(self, data):
         code = int(data[0])
-        if code == OPEN_ACK_CODE:  # OPEN_ACK_CODE|Res
-            self.ac.recvOpenACK(int(data[1]))
+        if code == OPEN_ACK_CODE:  # OPEN_ACK_CODE|Res|Mode|Current_temp|Speed
+            data = {
+                'res': int(data[1]),
+                'mode': int(data[2]),
+                'roomTemp': int(data[3]),
+                'windSpeed': int(data[4]),
+            }
+            self.ac.recvOpenACK(data)
         elif code == CLOSE_ACK_CODE:  # CLOSE_ACK_CODE|Res
             self.ac.recvCloseACK(int(data[1]))
         elif code == SPEED_ACK_CODE:  # SPEED_ACK_CODE|Res
@@ -36,7 +47,6 @@ class Protocol:
             self.ac.recvTempACK(int(data[1]))
         elif code == STATE_CODE:  # STATE_CODE|Room_id|Mode|Cur_temp|Target_temp|Speed|Energy|Cost
             state = {
-                # correct
                 'roomId': data[1],
                 'mode': int(data[2]),
                 'roomTemp': int(data[3]),
@@ -44,13 +54,6 @@ class Protocol:
                 'windSpeed': int(data[5]),
                 'energy': round(float(data[6]), 2),
                 'cost': round(float(data[7]), 2)
-                # incorrect
-                # 'roomId': data[1],
-                # 'roomTemp': int(data[2]),
-                # 'setTemp': int(data[3]),
-                # 'windSpeed': int(data[4]),
-                # 'energy': round(float(data[5]), 2),
-                # 'cost': round(float(data[6]), 2)
             }
             self.ac.recvState(state)
         elif code == HALT_CODE:  # HALT_CODE|Room_id
@@ -109,17 +112,12 @@ class Protocol:
 
     def sendState(self):
         # STATE_CODE|Room_id|Mode|Cur_temp|Target_temp|Speed|Energy|Cost
-        # correct
         self.sendPacket([STATE_CODE, self.ac.roomId, self.ac.mode,
                          self.ac.roomTemp, self.ac.setTemp, self.ac.windSpeed,
-                         self.ac.energy, self.ac.cost])
-        # incorrect
-        # self.sendPacket([STATE_CODE, self.ac.roomId,
-        #                  self.ac.roomTemp, self.ac.setTemp, self.ac.windSpeed,
-        #                  self.ac.energy, self.ac.cost])
+                         round(self.ac.energy, 2), round(self.ac.cost, 2)])
 
     def sendOpenACK(self, res):
-        self.sendPacket([OPEN_ACK_CODE, res])
+        self.sendPacket([OPEN_ACK_CODE, res, self.ac.mode, self.ac.roomTemp, self.ac.windSpeed, ])
 
     def sendCloseACK(self, res):
         self.sendPacket([CLOSE_ACK_CODE, res])
@@ -133,6 +131,7 @@ class Protocol:
     def sendHalt(self):
         self.sendPacket([HALT_CODE, self.ac.roomId])
 
+    @protocolErrorLog
     def protocolError(self):
         msg = '协议发生严重性错误！'
         if self.isClient:
@@ -142,6 +141,7 @@ class Protocol:
             QMessageBox().critical(self.ac, '协议出错', msg, QMessageBox.Yes, QMessageBox.Yes)
             self.ac.closeMachine()
 
+    @queueFullLog
     def serveQueueFull(self):
         # should be nonblock, don't use QMessageBox
         if self.dialogFull:

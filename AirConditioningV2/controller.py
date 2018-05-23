@@ -3,7 +3,7 @@ __date__ = '2018/5/15 0:13'
 
 import sys
 
-from PyQt5.QtWidgets import (QApplication, QWidget, QHeaderView, QTableWidgetItem)
+from PyQt5.QtWidgets import (QHeaderView, QTableWidgetItem)
 from PyQt5.QtNetwork import (QHostAddress, QTcpServer)
 from PyQt5.QtCore import QTimer
 
@@ -87,7 +87,6 @@ class ConnectClient():
             self.protocol.protocolError()
         else:
             self.protocol.sendCloseACK(int(True))
-            self.sock.disconnected.emit()
 
     def recvTemp(self, data):
         if data['roomId'] != self.roomId and data['userLevel'] != self.userLevel:
@@ -138,7 +137,7 @@ class Controller(QWidget):
         self.isUp = False
         self.port = DEFAULT_PORT
         self.serverIP = QHostAddress(DEFAULT_ADDR)
-        self.serveQueue, self.waitQueue, self.tempQueue = [], [], []  # # mutex ??? find usage
+        self.serveQueue, self.waitQueue, self.tempQueue = [], [], []
         self.sendStateTimer = QTimer()
         self.refTableTimer = QTimer()
         self.sendInterval = SEND_STATE_TIMER
@@ -208,11 +207,12 @@ class Controller(QWidget):
 
     def slotOpenOrClose(self):
         if self.isUp:
-            self.closeMachine()
+            self.closeServer()
         else:
-            self.openMachine()
+            self.startServer()
 
-    def openMachine(self):
+    @listenLog
+    def startServer(self):
         self.isUp = True
         self.ui.btCold.setEnabled(True)
         self.ui.btWarm.setEnabled(True)
@@ -221,11 +221,12 @@ class Controller(QWidget):
         self.ui.btClose.setText('关机')
         self.server = QTcpServer()
         self.server.listen(self.serverIP, self.port)
-        self.server.newConnection.connect(self.addClient2Queue)
+        self.server.newConnection.connect(self.newClient)
         self.sendStateTimer.start(self.sendInterval)
         self.refTableTimer.start(self.refInterval)
 
-    def closeMachine(self):
+    @closeServerLog
+    def closeServer(self):
         for client in self.serveQueue + self.waitQueue + self.tempQueue:
             client.room_temp_timer.stop()
             client.energy_timer.stop()
@@ -247,12 +248,15 @@ class Controller(QWidget):
         self.sendStateTimer.stop()
         self.refTableTimer.stop()
 
-    def addClient2Queue(self):
+    @newClientLog
+    def newClient(self):
         client_sock = self.server.nextPendingConnection()
         client = ConnectClient(client_sock, self)
         client_sock.readyRead.connect(client.protocol.recvPacket)
         client_sock.disconnected.connect(self.slotDisconnected)
+        return client_sock
 
+    @disconFromClientLog
     def slotDisconnected(self):
         client_sock = self.sender()
         idx, queue = self.findClient(client_sock)
@@ -260,6 +264,7 @@ class Controller(QWidget):
             queue[idx].room_temp_timer.stop()
             queue[idx].energy_timer.stop()
             del (queue[idx])
+        return client_sock
 
     def findClient(self, sock):
         for idx, client in enumerate(self.serveQueue):
@@ -275,9 +280,3 @@ class Controller(QWidget):
 
     def slotShowReport(self):
         self.reporter = Reporter()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    controller = Controller()
-    app.exit(app.exec_())
