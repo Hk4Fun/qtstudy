@@ -33,6 +33,7 @@ class Protocol:
             self.ac.recvTempACK(int(data[1]))
         elif code == STATE_CODE:  # STATE_CODE|Room_id|Mode|Cur_temp|Target_temp|Speed|Energy|Cost
             state = {
+                # correct
                 'roomId': data[1],
                 'mode': int(data[2]),
                 'roomTemp': int(data[3]),
@@ -40,6 +41,13 @@ class Protocol:
                 'windSpeed': int(data[5]),
                 'energy': round(float(data[6]), 2),
                 'cost': round(float(data[7]), 2)
+                # incorrect
+                # 'roomId': data[1],
+                # 'roomTemp': int(data[2]),
+                # 'setTemp': int(data[3]),
+                # 'windSpeed': int(data[4]),
+                # 'energy': round(float(data[5]), 2),
+                # 'cost': round(float(data[6]), 2)
             }
             self.ac.recvState(state)
         elif code == HALT_CODE:  # HALT_CODE|Room_id
@@ -89,7 +97,7 @@ class Protocol:
         # STATE_CODE|Room_id|Mode|Cur_temp|Target_temp|Speed|Energy|Cost
         self.sendPacket([STATE_CODE, self.ac.roomId, self.ac.mode,
                          self.ac.roomTemp, self.ac.setTemp, self.ac.windSpeed,
-                         self.ac.energy, self.ac.money])
+                         self.ac.energy, self.ac.cost])
 
     def sendOpenACK(self, res):
         self.sendPacket([OPEN_ACK_CODE, res])

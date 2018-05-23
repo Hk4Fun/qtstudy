@@ -10,6 +10,7 @@ from PyQt5.QtCore import QTimer
 sys.path.append('..')
 from AirConditioningV2.protocols import *
 from AirConditioningV2.utils import *
+from AirConditioningV2.reporter import *
 from AirConditioningV2.ui import ui_Controller
 
 
@@ -25,7 +26,7 @@ class ConnectClient():
         self.setTemp = DEFAULT_SET_TEMP
         self.windSpeed = DEFAULT_WIND_SPEED
         self.energy = 0
-        self.money = 0
+        self.cost = 0
         self.room_temp_timer = QTimer()
         self.energy_timer = QTimer()
         self.room_temp_timer.timeout.connect(self.slotChangeRoomTemp)
@@ -120,7 +121,7 @@ class ConnectClient():
 
     def slotChangeEnergyMoney(self):
         self.energy += ENERGY_INC * self.windSpeed
-        self.money += MONEY_INC * self.windSpeed
+        self.cost += COST_INC * self.windSpeed
 
 
 class Controller(QWidget):
@@ -187,7 +188,7 @@ class Controller(QWidget):
             table.setItem(row, 4, QTableWidgetItem(str(client.setTemp)))
             table.setItem(row, 5, QTableWidgetItem(mapWindSpeed_c2w(client.windSpeed)))
             table.setItem(row, 6, QTableWidgetItem(str(round(client.energy, 2))))
-            table.setItem(row, 7, QTableWidgetItem(str(round(client.money, 2))))
+            table.setItem(row, 7, QTableWidgetItem(str(round(client.cost, 2))))
 
     def slotRefTable(self):
         self.ui.tbServeQueue.clearContents()
@@ -265,7 +266,7 @@ class Controller(QWidget):
         return -1, None
 
     def slotShowReport(self):
-        pass
+        self.reporter = Reporter()
 
 
 if __name__ == '__main__':
