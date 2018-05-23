@@ -53,7 +53,7 @@ class SubMachine(QWidget):
             self.openMachine()
 
     def closeMachine(self):
-        self.sock.disconnectFromHost()
+        self.protocol.sendClose()
 
     def openMachine(self):
         self.roomId = self.ui.leRoomId.text()
@@ -111,6 +111,13 @@ class SubMachine(QWidget):
         else:
             msg = '该房间已入住，请更换其他房间号！'
             QMessageBox().warning(self, '开机失败', msg, QMessageBox.Yes, QMessageBox.Yes)
+
+    def recvCloseACK(self, res):
+        if res:
+            self.sock.disconnectFromHost()
+        else: # maybe useless
+            msg = '请求关机失败！'
+            QMessageBox().warning(self, '关机失败', msg, QMessageBox.Yes, QMessageBox.Yes)
 
     def recvSpeedACK(self, res):
         if res:

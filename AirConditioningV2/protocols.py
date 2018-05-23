@@ -21,12 +21,15 @@ class Protocol:
         recvData = ''
         while self.sock.bytesAvailable() > 0:
             recvData += self.sock.read(self.sock.bytesAvailable()).decode()
+        print(recvData)
         self.dataParse(recvData.split('|'))
 
     def dataParse(self, data):
         code = int(data[0])
         if code == OPEN_ACK_CODE:  # OPEN_ACK_CODE|Res
             self.ac.recvOpenACK(int(data[1]))
+        elif code == CLOSE_ACK_CODE:  # CLOSE_ACK_CODE|Res
+            self.ac.recvCloseACK(int(data[1]))
         elif code == SPEED_ACK_CODE:  # SPEED_ACK_CODE|Res
             self.ac.recvSpeedACK(int(data[1]))
         elif code == TEMP_ACK_CODE:  # TEMP_ACK_CODE|Res
@@ -74,12 +77,23 @@ class Protocol:
             self.ac.recvTemp(data)
         elif code == TEMP_BACK_CODE:  # TEMP_BACK_CODE|roomTemp
             self.ac.recvTemBack(int(data[1]))
+        elif code == CLOSE_CODE:  # CLOSE_CODE|Room_id|Identifier
+            data = {
+                'roomId': data[1],
+                'userLevel': int(data[2])
+            }
+            self.ac.recvClose(data)
+
         else:
             self.protocolError()
 
     def sendOpen(self):
         # OPEN_CODE|Room_id|userLevel
         self.sendPacket([OPEN_CODE, self.ac.roomId, self.ac.userLevel])
+
+    def sendClose(self):
+        # CLOSE_CODE|Room_id|userLevel
+        self.sendPacket([CLOSE_CODE, self.ac.roomId, self.ac.userLevel])
 
     def sendSpeed(self, type):
         # SPEED_CODE|Room_id|userLevel|Speed_type
@@ -95,12 +109,20 @@ class Protocol:
 
     def sendState(self):
         # STATE_CODE|Room_id|Mode|Cur_temp|Target_temp|Speed|Energy|Cost
+        # correct
         self.sendPacket([STATE_CODE, self.ac.roomId, self.ac.mode,
                          self.ac.roomTemp, self.ac.setTemp, self.ac.windSpeed,
                          self.ac.energy, self.ac.cost])
+        # incorrect
+        # self.sendPacket([STATE_CODE, self.ac.roomId,
+        #                  self.ac.roomTemp, self.ac.setTemp, self.ac.windSpeed,
+        #                  self.ac.energy, self.ac.cost])
 
     def sendOpenACK(self, res):
         self.sendPacket([OPEN_ACK_CODE, res])
+
+    def sendCloseACK(self, res):
+        self.sendPacket([CLOSE_ACK_CODE, res])
 
     def sendSpeedACK(self, res):
         self.sendPacket([SPEED_ACK_CODE, res])

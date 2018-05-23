@@ -81,6 +81,14 @@ class ConnectClient():
         else:
             self.protocol.protocolError()
 
+    def recvClose(self, data):
+        if data['roomId'] != self.roomId and data['userLevel'] != self.userLevel:
+            self.protocol.sendCloseACK(int(False))
+            self.protocol.protocolError()
+        else:
+            self.protocol.sendCloseACK(int(True))
+            self.sock.disconnected.emit()
+
     def recvTemp(self, data):
         if data['roomId'] != self.roomId and data['userLevel'] != self.userLevel:
             self.protocol.protocolError()
