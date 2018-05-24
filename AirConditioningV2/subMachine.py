@@ -53,15 +53,17 @@ class SubMachine(QWidget):
             self.openMachine()
 
     def closeMachine(self):
+        self.tempBackTimer.stop()
         self.protocol.sendClose()
 
+    @emptyRoomLog
     @connectHostLog
     def openMachine(self):
         self.roomId = self.ui.leRoomId.text()
         if self.roomId == '':
             msg = '请先填写房间号！'
             QMessageBox().warning(self, '房间号为空', msg, QMessageBox.Yes, QMessageBox.Yes)
-            return
+            return False
         self.sock = QTcpSocket(self)
         self.protocol = Protocol(self.sock, self)
         self.sock.connectToHost(self.serverIP, self.port)
@@ -70,6 +72,7 @@ class SubMachine(QWidget):
         self.sock.readyRead.connect(self.protocol.recvPacket)
         self.sock.disconnected.connect(self.slotDisconnected)
         self.sock.error.connect(self.slotErrorOccured)
+        return True
 
     @disconFromServerLog
     def slotDisconnected(self):
