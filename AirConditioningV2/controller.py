@@ -94,7 +94,7 @@ class ConnectClient():
         else:
             self.protocol.sendCloseACK(int(True))
             self.closeTime = time.time()
-            self.server.reporter.saveDetail(self)
+            self.server.reporter.detailList.saveDetail(self)
 
     def recvTemp(self, data):
         if data['roomId'] != self.roomId and data['userLevel'] != self.userLevel:
@@ -292,4 +292,3 @@ class Controller(QWidget):
 
     def slotShowReport(self):
         self.reporter.show()
-        self.reporter.slotRefTbDetail()

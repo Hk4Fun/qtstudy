@@ -13,85 +13,487 @@
   <property name="windowTitle">
    <string>报表</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
+  <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="title">
+      <string>报表类型</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QRadioButton" name="radioButton">
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>日报表</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_2">
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>月报表</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_4">
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>季报表</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_3">
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>年报表</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QStackedWidget" name="stackedWidget">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="page">
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="topMargin">
+             <number>9</number>
+            </property>
+            <item>
+             <widget class="QDateEdit" name="dateEdit">
+              <property name="correctionMode">
+               <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
+              </property>
+              <property name="minimumDateTime">
+               <datetime>
+                <hour>0</hour>
+                <minute>0</minute>
+                <second>0</second>
+                <year>1753</year>
+                <month>9</month>
+                <day>14</day>
+               </datetime>
+              </property>
+              <property name="currentSection">
+               <enum>QDateTimeEdit::YearSection</enum>
+              </property>
+              <property name="displayFormat">
+               <string>yyyy/M/dd</string>
+              </property>
+              <property name="calendarPopup">
+               <bool>true</bool>
+              </property>
+              <property name="date">
+               <date>
+                <year>2000</year>
+                <month>1</month>
+                <day>1</day>
+               </date>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_2">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QComboBox" name="comboBox_3">
+              <item>
+               <property name="text">
+                <string>2018年</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox">
+              <item>
+               <property name="text">
+                <string>一月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>二月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>三月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>四月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>五月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>六月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>七月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>八月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>九月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>十月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>十一月</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>十二月</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_4">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QComboBox" name="comboBox_4">
+              <item>
+               <property name="text">
+                <string>2018年</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox_5">
+              <item>
+               <property name="text">
+                <string>第一季度</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>第二季度</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>第三季度</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>第四季度</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_3">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QComboBox" name="comboBox_2">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+               </font>
+              </property>
+              <item>
+               <property name="text">
+                <string>2018年</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QPushButton" name="btRefresh">
        <property name="font">
         <font>
          <pointsize>14</pointsize>
         </font>
        </property>
-       <property name="title">
-        <string>报表类型</string>
+       <property name="text">
+        <string>刷新</string>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QRadioButton" name="radioButton">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>日报表</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButton_2">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>月报表</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButton_4">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>季报表</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButton_3">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>年报表</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetNoConstraint</enum>
+      <widget class="QPushButton" name="btSettle">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
        </property>
+       <property name="text">
+        <string>结帐</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="tabPosition">
+      <enum>QTabWidget::South</enum>
+     </property>
+     <property name="tabShape">
+      <enum>QTabWidget::Triangular</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>16</width>
+       <height>16</height>
+      </size>
+     </property>
+     <property name="elideMode">
+      <enum>Qt::ElideLeft</enum>
+     </property>
+     <property name="usesScrollButtons">
+      <bool>true</bool>
+     </property>
+     <property name="documentMode">
+      <bool>false</bool>
+     </property>
+     <property name="tabsClosable">
+      <bool>false</bool>
+     </property>
+     <property name="movable">
+      <bool>true</bool>
+     </property>
+     <property name="tabBarAutoHide">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="tabDatail">
+      <attribute name="title">
+       <string>详单</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <widget class="QTableWidget" name="tbDetail">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>房间号</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>用户等级</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>开机时间</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>关机时间</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>时长</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>调温次数</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>回温次数</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>调风次数</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>耗能（kW·h）</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>费用（元）</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>单号</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabBillList">
+      <attribute name="title">
+       <string>账单</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QTableWidget" name="tbBillList">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>日期</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>单号</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>房间号</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>用户级别</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>总消费（元）</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>折扣率</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>应收金额（元）</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
-          <widget class="QStackedWidget" name="stackedWidget">
+          <widget class="QLabel" name="label">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -101,297 +503,33 @@
              <pointsize>14</pointsize>
             </font>
            </property>
-           <property name="currentIndex">
-            <number>0</number>
+           <property name="text">
+            <string>总收入（元）：</string>
            </property>
-           <widget class="QWidget" name="page">
-            <layout class="QVBoxLayout" name="verticalLayout">
-             <property name="spacing">
-              <number>6</number>
-             </property>
-             <property name="topMargin">
-              <number>9</number>
-             </property>
-             <item>
-              <widget class="QDateEdit" name="dateEdit">
-               <property name="correctionMode">
-                <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
-               </property>
-               <property name="minimumDateTime">
-                <datetime>
-                 <hour>0</hour>
-                 <minute>0</minute>
-                 <second>0</second>
-                 <year>1753</year>
-                 <month>9</month>
-                 <day>14</day>
-                </datetime>
-               </property>
-               <property name="currentSection">
-                <enum>QDateTimeEdit::YearSection</enum>
-               </property>
-               <property name="displayFormat">
-                <string>yyyy/M/dd</string>
-               </property>
-               <property name="calendarPopup">
-                <bool>true</bool>
-               </property>
-               <property name="date">
-                <date>
-                 <year>2000</year>
-                 <month>1</month>
-                 <day>1</day>
-                </date>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="page_2">
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QComboBox" name="comboBox_3">
-               <item>
-                <property name="text">
-                 <string>2018年</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="comboBox">
-               <item>
-                <property name="text">
-                 <string>一月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>二月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>三月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>四月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>五月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>六月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>七月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>八月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>九月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>十月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>十一月</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>十二月</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="page_4">
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <item>
-              <widget class="QComboBox" name="comboBox_4">
-               <item>
-                <property name="text">
-                 <string>2018年</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="comboBox_5">
-               <item>
-                <property name="text">
-                 <string>第一季度</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>第二季度</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>第三季度</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>第四季度</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="page_3">
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <widget class="QComboBox" name="comboBox_2">
-               <property name="font">
-                <font>
-                 <pointsize>14</pointsize>
-                </font>
-               </property>
-               <item>
-                <property name="text">
-                 <string>2018年</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </widget>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_totalIncome">
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
           </widget>
          </item>
         </layout>
        </item>
-       <item>
-        <widget class="QPushButton" name="btRefresh">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>刷新</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btSettle">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>结帐</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btBill">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>账单</string>
-         </property>
-        </widget>
-       </item>
       </layout>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QTableWidget" name="tbDetail">
-     <property name="sizeAdjustPolicy">
-      <enum>QAbstractScrollArea::AdjustToContents</enum>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="sortingEnabled">
-      <bool>true</bool>
-     </property>
-     <column>
-      <property name="text">
-       <string>房间号</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>用户等级</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>开机时间</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>关机时间</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>时长</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>调温次数</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>回温次数</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>调风次数</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>耗能（kW·h）</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>费用（元）</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>单号</string>
-      </property>
-     </column>
+     </widget>
     </widget>
    </item>
   </layout>
+  <zorder>tabWidget</zorder>
+  <zorder>stackedWidget</zorder>
+  <zorder>btSettle</zorder>
  </widget>
  <resources/>
  <connections/>
