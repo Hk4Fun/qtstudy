@@ -4,6 +4,8 @@ __date__ = '2018/5/15 17:24'
 import time
 import datetime
 
+from PyQt5.QtCore import QDate
+
 from AirConditioningV2.settings import *
 
 
@@ -45,3 +47,7 @@ def durationFormat(start, end):  # start,end -- timestamp
     start = datetime.datetime.fromtimestamp(start).replace(microsecond=0)  # microsecond=0忽略毫秒数
     end = datetime.datetime.fromtimestamp(end).replace(microsecond=0)
     return str(end - start)
+
+def isEqDate(date, queryDate):
+    t = datetime.datetime.strptime(queryDate, "%Y-%m-%d %H:%M:%S")
+    return date == QDate(t.year, t.month, t.day)

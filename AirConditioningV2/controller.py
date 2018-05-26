@@ -243,6 +243,8 @@ class Controller(QWidget):
             client.room_temp_timer.stop()
             client.energy_timer.stop()
             client.sock.abort()
+            client.closeTime = time.time()
+            self.reporter.detailList.saveDetail(client)
         self.serveQueue, self.waitQueue, self.tempQueue = [], [], []
         del self.server
         self.isUp = False
@@ -292,3 +294,4 @@ class Controller(QWidget):
 
     def slotShowReport(self):
         self.reporter.show()
+        self.reporter.slotRefTb()

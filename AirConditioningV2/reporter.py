@@ -19,12 +19,13 @@ class DetailList():
         self.query = db.query
         self.showDetailList()
 
-    def showDetailList(self):
+    def showDetailList(self, date=None):
         self.ui.tbDetail.clearContents()
         self.ui.tbDetail.setSortingEnabled(False)  # http://doc.qt.io/qt-5/qtablewidget.html#setItem
         self.db.sqlExec('SELECT * FROM detail_list')
         row = 0
         while self.query.next():
+            if date and not isEqDate(date, timeFormat(self.query.value(1))): continue
             self.ui.tbDetail.setRowCount(row + 1)
             self.ui.tbDetail.setItem(row, 0, QTableWidgetItem(self.query.value(0)))
             self.ui.tbDetail.setItem(row, 1, QTableWidgetItem(mapUserLevel_c2w(self.query.value(3))))
@@ -64,13 +65,14 @@ class BillList():
         self.ui.tbBillList.cellDoubleClicked.connect(self.showBill)
         self.showBillList()
 
-    def showBillList(self):
+    def showBillList(self, date=None):
         self.ui.tbBillList.clearContents()
         self.ui.tbBillList.setSortingEnabled(False)
         self.db.sqlExec('SELECT * FROM bill_list')
         totalIncome = 0
         row = 0
         while self.query.next():
+            if date and not isEqDate(date, self.query.value(0)): continue
             self.ui.tbBillList.setRowCount(row + 1)
             self.ui.tbBillList.setItem(row, 0, QTableWidgetItem(self.query.value(0)))
             self.ui.tbBillList.setItem(row, 1, QTableWidgetItem(self.query.value(1)))
@@ -153,19 +155,27 @@ class Reporter(QWidget):
         header = self.ui.tbBillList.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.Stretch)
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.ui.dateEdit.setDate(QDate.currentDate())
 
         self.ui.btRefresh.clicked.connect(self.slotRefTb)
         self.ui.btSettle.clicked.connect(self.slotSettle)
         self.ui.tabWidget.currentChanged.connect(self.slotChangePage)
+        self.ui.dateEdit.dateChanged.connect(self.slotSelectDate)
 
         self.detailList = DetailList(self.ui, self.db)
         self.billList = BillList(self.ui, self.db)
 
+    def slotSelectDate(self, date):
+        self.detailList.showDetailList(date)
+        self.billList.showBillList(date)
+
     def slotRefTb(self):
+        self.ui.dateEdit.setDate(QDate.currentDate())
         self.detailList.showDetailList()
         self.billList.showBillList()
 
     def slotChangePage(self, idx):
+        self.ui.dateEdit.setDate(QDate.currentDate())
         if idx == 0:
             self.detailList.showDetailList()
         elif idx == 1:
