@@ -174,3 +174,25 @@ def emptyRoomLog(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def dbConnectLog(func):
+    def wrapper(*args, **kwargs):
+        ret = func(*args, **kwargs)
+        if ret:
+            logger.info('successfully connecting to the database %s', DATABASE_NAME)
+        else:
+            logger.error('Unable to connect to the database %s', DATABASE_NAME)
+        return ret
+
+    return wrapper
+
+def sqlLog(func):
+    def wrapper(*args, **kwargs):
+        ret = func(*args, **kwargs)
+        reporter = args[0]
+        if not ret:
+            logger.error(reporter.query.lastError().text())
+        return ret
+
+    return wrapper

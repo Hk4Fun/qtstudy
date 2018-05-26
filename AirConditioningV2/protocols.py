@@ -144,8 +144,6 @@ class Protocol:
     @queueFullLog
     def serveQueueFull(self):
         # should be nonblock, don't use QMessageBox
-        if self.dialogFull:
-            self.dialogFull.close()
         ui = ui_QueueFull.Ui_Dialog()
         self.dialogFull = QDialog(self.ac)
         ui.setupUi(self.dialogFull)

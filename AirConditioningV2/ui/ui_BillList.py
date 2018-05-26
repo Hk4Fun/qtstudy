@@ -1,0 +1,92 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'ui_BillList.ui'
+#
+# Created by: PyQt5 UI code generator 5.10.1
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(741, 490)
+        self.verticalLayout = QtWidgets.QVBoxLayout(Form)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.btRefresh = QtWidgets.QPushButton(Form)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.btRefresh.setFont(font)
+        self.btRefresh.setObjectName("btRefresh")
+        self.verticalLayout.addWidget(self.btRefresh)
+        self.tbBillList = QtWidgets.QTableWidget(Form)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.tbBillList.setFont(font)
+        self.tbBillList.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.tbBillList.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.tbBillList.setObjectName("tbBillList")
+        self.tbBillList.setColumnCount(7)
+        self.tbBillList.setRowCount(0)
+        item = QtWidgets.QTableWidgetItem()
+        self.tbBillList.setHorizontalHeaderItem(0, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tbBillList.setHorizontalHeaderItem(1, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tbBillList.setHorizontalHeaderItem(2, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tbBillList.setHorizontalHeaderItem(3, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tbBillList.setHorizontalHeaderItem(4, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tbBillList.setHorizontalHeaderItem(5, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tbBillList.setHorizontalHeaderItem(6, item)
+        self.verticalLayout.addWidget(self.tbBillList)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtWidgets.QLabel(Form)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setPointSize(17)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.label_totalIncome = QtWidgets.QLabel(Form)
+        font = QtGui.QFont()
+        font.setPointSize(17)
+        self.label_totalIncome.setFont(font)
+        self.label_totalIncome.setText("")
+        self.label_totalIncome.setObjectName("label_totalIncome")
+        self.horizontalLayout.addWidget(self.label_totalIncome)
+        self.verticalLayout.addLayout(self.horizontalLayout)
+
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "账单列表"))
+        self.btRefresh.setText(_translate("Form", "刷新"))
+        self.tbBillList.setSortingEnabled(True)
+        item = self.tbBillList.horizontalHeaderItem(0)
+        item.setText(_translate("Form", "日期"))
+        item = self.tbBillList.horizontalHeaderItem(1)
+        item.setText(_translate("Form", "单号"))
+        item = self.tbBillList.horizontalHeaderItem(2)
+        item.setText(_translate("Form", "房间号"))
+        item = self.tbBillList.horizontalHeaderItem(3)
+        item.setText(_translate("Form", "用户级别"))
+        item = self.tbBillList.horizontalHeaderItem(4)
+        item.setText(_translate("Form", "总消费（元）"))
+        item = self.tbBillList.horizontalHeaderItem(5)
+        item.setText(_translate("Form", "折扣率"))
+        item = self.tbBillList.horizontalHeaderItem(6)
+        item.setText(_translate("Form", "应收金额（元）"))
+        self.label.setText(_translate("Form", "总收入（元）："))
+

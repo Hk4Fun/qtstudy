@@ -9,7 +9,7 @@ from PyQt5.QtCore import QTimer
 
 sys.path.append('..')
 from AirConditioningV2.protocols import *
-from AirConditioningV2.utils import *
+from AirConditioningV2.filters import *
 from AirConditioningV2.ui import ui_SubMachine
 
 

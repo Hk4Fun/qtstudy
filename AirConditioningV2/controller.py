@@ -3,14 +3,13 @@ __date__ = '2018/5/15 0:13'
 
 import sys
 
-from PyQt5.QtWidgets import (QHeaderView, QTableWidgetItem)
 from PyQt5.QtNetwork import (QHostAddress, QTcpServer)
 from PyQt5.QtCore import QTimer
 
 sys.path.append('..')
 from AirConditioningV2.protocols import *
-from AirConditioningV2.utils import *
 from AirConditioningV2.reporter import *
+from AirConditioningV2.database import *
 from AirConditioningV2.ui import ui_Controller
 
 
@@ -27,6 +26,11 @@ class ConnectClient():
         self.windSpeed = DEFAULT_WIND_SPEED
         self.energy = 0
         self.cost = 0
+        self.openTime = 0
+        self.closeTime = 0
+        self.tempAdjust = 0
+        self.tempBackCount = 0
+        self.speedAdjust = 0
         self.room_temp_timer = QTimer()
         self.energy_timer = QTimer()
         self.room_temp_timer.timeout.connect(self.slotChangeRoomTemp)
@@ -65,6 +69,7 @@ class ConnectClient():
         if self.hasRegistered(data['roomId']):
             self.protocol.sendOpenACK(int(False))
         else:  # 加入等待队列或服务队列
+            self.openTime = time.time()
             self.protocol.sendOpenACK(int(True))
             self.roomId = data['roomId']
             self.userLevel = data['userLevel']
@@ -74,6 +79,7 @@ class ConnectClient():
         if data['roomId'] != self.roomId and data['userLevel'] != self.userLevel:
             self.protocol.protocolError()
         elif self in self.server.serveQueue:
+            self.speedAdjust += 1
             self.protocol.sendSpeedACK(int(True))
             self.windSpeed = data['windSpeed']
         elif self in self.server.waitQueue:
@@ -87,11 +93,14 @@ class ConnectClient():
             self.protocol.protocolError()
         else:
             self.protocol.sendCloseACK(int(True))
+            self.closeTime = time.time()
+            self.server.reporter.saveDetail(self)
 
     def recvTemp(self, data):
         if data['roomId'] != self.roomId and data['userLevel'] != self.userLevel:
             self.protocol.protocolError()
         elif self in self.server.serveQueue:
+            self.tempAdjust += 1
             self.protocol.sendTempACK(int(True))
             self.setTemp = data['setTemp']
         elif self in self.server.waitQueue:
@@ -101,6 +110,7 @@ class ConnectClient():
 
     def recvTemBack(self, roomTemp):
         if self in self.server.tempQueue:  # 检查一下自己是否在回温队列中
+            self.tempBackCount += 1
             self.roomTemp = roomTemp
             self.server.tempQueue.remove(self)
             self.add2ServeOrWait()
@@ -134,6 +144,8 @@ class ConnectClient():
 class Controller(QWidget):
     def __init__(self):
         super().__init__()
+        self.db = Database(self)
+        self.reporter = Reporter(self.db, self)
         self.isUp = False
         self.port = DEFAULT_PORT
         self.serverIP = QHostAddress(DEFAULT_ADDR)
@@ -207,12 +219,12 @@ class Controller(QWidget):
 
     def slotOpenOrClose(self):
         if self.isUp:
-            self.closeServer()
+            self.closeMachine()
         else:
-            self.startServer()
+            self.openMachine()
 
     @listenLog
-    def startServer(self):
+    def openMachine(self):
         self.isUp = True
         self.ui.btCold.setEnabled(True)
         self.ui.btWarm.setEnabled(True)
@@ -226,7 +238,7 @@ class Controller(QWidget):
         self.refTableTimer.start(self.refInterval)
 
     @closeServerLog
-    def closeServer(self):
+    def closeMachine(self):
         for client in self.serveQueue + self.waitQueue + self.tempQueue:
             client.room_temp_timer.stop()
             client.energy_timer.stop()
@@ -279,4 +291,5 @@ class Controller(QWidget):
         return -1, None
 
     def slotShowReport(self):
-        self.reporter = Reporter()
+        self.reporter.show()
+        self.reporter.slotRefTbDetail()

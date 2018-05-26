@@ -26,6 +26,9 @@ TABLE_REF_TIMER = 1000  # 刷新所有队列表格计时器
 TEMP_BACK_TIMER = 2000  # 回温机制下，每隔TEMP_BACK_TIMER秒回温1摄氏度
 TEMP_BACK_RANGE = 3  # 回温了TEMP_BACK_RANGE摄氏度就重新申请服务
 MAX_SERVE_LEN = 3  # 最大服务队列长度
+DATABASE_NAME = 'db\db.sqlite3'
+NORMAL_DISCOUNT = 1
+VIP_DISCOUNT = 0.85
 
 # 协议类型
 OPEN_CODE = 1
