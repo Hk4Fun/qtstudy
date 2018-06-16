@@ -26,11 +26,11 @@ class Protocol:
     def recvPacket(self):
         while self.sock.bytesAvailable() > 0:
             self.buffer += self.sock.read(self.sock.bytesAvailable()).decode()
-        while self.buffer:  # 解决粘包问题
+        while self.buffer:  # 分包（拆包）
             recvData = self.buffer.split('*')
             this = recvData[1]
-            self.buffer = '*'.join([''] + recvData[2:])
-            self.dataParse(this.split('|'))
+            self.buffer = '*'.join([''] + recvData[2:]) # 由于*加在包的前面，需要自己补上‘’
+            self.dataParse(this.split('|')) # 一个包触发一次业务逻辑
 
     @recvLog
     def dataParse(self, data):
