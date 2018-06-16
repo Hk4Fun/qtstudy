@@ -16,17 +16,21 @@ class Protocol:
         self.ac = ac
         self.isClient = isClient
         self.dialogFull = None
+        self.buffer = ''
 
     @sendLog
     def sendPacket(self, packet):
-        sendData = '|'.join(map(str, packet))
+        sendData = '*' + '|'.join(map(str, packet))  # 在开头加入‘*’（解决粘包问题）
         self.sock.write(sendData.encode())
 
     def recvPacket(self):
-        recvData = ''
         while self.sock.bytesAvailable() > 0:
-            recvData += self.sock.read(self.sock.bytesAvailable()).decode()
-        self.dataParse(recvData.split('|'))
+            self.buffer += self.sock.read(self.sock.bytesAvailable()).decode()
+        while self.buffer:  # 解决粘包问题
+            recvData = self.buffer.split('*')
+            this = recvData[1]
+            self.buffer = '*'.join([''] + recvData[2:])
+            self.dataParse(this.split('|'))
 
     @recvLog
     def dataParse(self, data):
